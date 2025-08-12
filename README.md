@@ -94,13 +94,10 @@ If the compilation is successful, no errors will appear, and an executable file 
   ```bash
  .\main.exe
   ```
-
-
-
-
-
 ---
 
+## Sample Output
+![Output](Pictures/Output.png)
 
 
  
