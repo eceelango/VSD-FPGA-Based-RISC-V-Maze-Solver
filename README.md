@@ -70,6 +70,143 @@ Absolutely! Here's a clear explanation of the **Compile and Run** section for yo
 
 ---
 
+## main.c
+```bash
+#include <stdio.h>
+#include "UltrasonicSensor.h"
+
+// Motor control variables (simulate motor pins)
+int Motor1A=0, Motor1B=0, Motor2A=0, Motor2B=0;
+
+// Function declarations
+void moveForward();
+void turnRight();
+void turnLeft();
+void goBack();
+void delay(long iterations);
+
+int main() {
+    while(1) {
+        readAndProcessSensors();
+
+        if(Sensor3 == 1) {
+            turnRight();
+        }
+        else {
+            if(Sensor2 == 1) {
+                moveForward();
+            }
+            else if(Sensor1 == 1) {
+                turnLeft();
+            }
+            else {
+                goBack();
+            }
+        }
+    }
+    return 0;
+}
+
+// Movement functions implementation
+void moveForward() {
+    printf("\n----------------------------------------------");
+    printf("\n\tMoving forward");
+    Motor1A=1; Motor1B=0;
+    Motor2A=1; Motor2B=0;
+    printf("\nMotor1A=1, Motor1B=0, Motor2A=1, Motor2B=0");
+    printf("\n----------------------------------------------\n");
+}
+
+void turnRight() {
+    printf("\n----------------------------------------------");
+    printf("\n\tTurning right");
+    Motor1A=1; Motor1B=0;
+    Motor2A=0; Motor2B=1;
+    printf("\nMotor1A=1, Motor1B=0, Motor2A=0, Motor2B=1");
+    printf("\n----------------------------------------------\n");
+    delay(700);
+}
+
+void turnLeft() {
+    printf("\n----------------------------------------------");
+    printf("\n\tTurning left");
+    Motor1A=0; Motor1B=1;
+    Motor2A=1; Motor2B=0;
+    printf("\nMotor1A=0, Motor1B=1, Motor2A=1, Motor2B=0");
+    printf("\n----------------------------------------------\n");
+    delay(700);
+}
+
+void goBack() {
+    printf("\n----------------------------------------------");
+    printf("\n\tU Turn");
+    Motor1A=1; Motor1B=0;
+    Motor2A=1; Motor2B=0;
+    printf("\nMotor1A=1, Motor1B=0, Motor2A=1, Motor2B=0");
+    printf("\n----------------------------------------------\n");
+    delay(1400);
+}
+
+void delay(long iterations) {
+    for(long i = 0; i < iterations; i++) {
+        // Empty delay loop for simulation
+    }
+}
+
+```
+---
+
+## UltrasonicSensor.c
+
+```bash
+#include <stdio.h>
+#include "UltrasonicSensor.h"
+
+int Sensor1 = 0;  // Left Sensor signal
+int Sensor2 = 0;  // Front Sensor signal
+int Sensor3 = 0;  // Right Sensor signal
+
+#define THRESHOLD 10  // in cm
+
+void readAndProcessSensors() {
+    int dist1, dist2, dist3;
+
+    printf("\nEnter distance for Sensor3 (Right): ");
+    scanf("%d", &dist3);
+    printf("Enter distance for Sensor2 (Front): ");
+    scanf("%d", &dist2);
+    printf("Enter distance for Sensor1 (Left): ");
+    scanf("%d", &dist1);
+
+    // Distance > THRESHOLD → path clear (1), else blocked (0)
+    Sensor3 = (dist3 > THRESHOLD) ? 1 : 0;
+    Sensor2 = (dist2 > THRESHOLD) ? 1 : 0;
+    Sensor1 = (dist1 > THRESHOLD) ? 1 : 0;
+
+    printf("\nProcessed Signals => Right: %d, Front: %d, Left: %d\n", Sensor3, Sensor2, Sensor1);
+}
+```
+---
+
+## UltrasonicSensor.h
+
+```bash
+
+#ifndef ULTRASONICSENSOR_H
+#define ULTRASONICSENSOR_H
+
+// Sensor signals: 0 = blocked (low), 1 = clear (high)
+extern int Sensor1;  // Left
+extern int Sensor2;  // Front
+extern int Sensor3;  // Right
+
+// Function to read sensor distances and convert to high/low signals
+void readAndProcessSensors();
+
+#endif // ULTRASONICSENSOR_H
+
+```
+---
 ### Compile and Run
 
 
