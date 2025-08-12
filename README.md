@@ -370,7 +370,7 @@ void delay(long iterations) {
 ---
   
 ## 📺Sample Output
-![Output](https://github.com/eceelango/VSD-FPGA-Based-RISC-V-Maze-Solver/blob/e5a02f091402c9872f392c2ba31b3f96e1d3e0df/Pictures/Output_1.png)
+![Output](https://github.com/eceelango/VSD-FPGA-Based-RISC-V-Maze-Solver/blob/42e16cd91dbaf2d358ac0b996f6f0042a1c673ad/Pictures/Output_2.png)
 
   
 
