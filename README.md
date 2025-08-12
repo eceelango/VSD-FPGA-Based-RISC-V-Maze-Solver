@@ -1,8 +1,27 @@
 # VSD-FPGA-Based-RISC-V-Maze-Solver
+---
 
-# FPGA-Based RISC-V Maze Solver (C Implementation)
+## VSDSquadron FM: Hardware Summary
 
-## 📌 Introduction – VSD Squadron FPGA Mini
+### Key Specifications
+
+| Feature                   | Specification                        |
+|---------------------------|------------------------------------|
+| **FPGA Chip**             | Lattice UltraPlus ICE40UP5K         |
+| **Logic Cells**           | 5,280                              |
+| **SPRAM**                 | 1 Mb                              |
+| **GPIO Pins**             | 32 accessible FPGA GPIOs            |
+| **Memory**                | 4 MB SPI Flash                     |
+| **LED Indicators**        | RGB LED                           |
+| **Power Regulation**      | Onboard 3.3V regulators             |
+| **Dimensions (L × W)**    | 57 mm × 29 mm                     |
+| **Max Operating Frequency** | 133 MHz                          |
+| **Supported Development Tools** | Project IceStorm, Yosys, NextPNR |
+
+
+## FPGA-Based RISC-V Maze Solver (C Implementation)
+
+### 📌 Introduction – VSD Squadron FPGA Mini
 The **VSD Squadron FPGA Mini** is a compact, low-power FPGA development board designed for experimenting with digital logic design, RISC-V processor implementation, and embedded systems applications. It features:
 - **FPGA Device**: Lattice iCE40 series
 - **Clock Frequency**: 12 MHz
@@ -13,7 +32,7 @@ This board is used in this project to implement a **RISC-V based maze solver** t
 
 ---
 
-## 🎯 Project Objective
+### 🎯 Project Objective
 The key objective of this project is to develop a **microarchitecture (RISC-V controller)** so that the micromouse maze solver bot can find a path from a designated **start point** to an **end point** within a maze, **efficiently and accurately**.
 
 This involves:
@@ -24,12 +43,12 @@ This involves:
 - Overcoming challenges such as **loops**, **multiple paths**, and **dynamic changes** within the maze environment.
 
 ---
-## 🔍 Block Diagram
+### 🔍 Block Diagram
 ![Block Diagram](images/block_diagram.png) 
 
 ---
 
-## 🔄 Flowchart
+### 🔄 Flowchart
 ![Flowchart](images/flowchart.png) 
 
 ---
@@ -45,9 +64,41 @@ This involves:
   - Sensor and control logic separated for better maintainability.
   - Easier to debug and extend.
 - Compile and run:
-  ```bash
-  gcc main.c UltrasonicSensor.c -o main
+Absolutely! Here's a clear explanation of the **Compile and Run** section for your README:
 
-  ./main.exe
+---
+
+### Compile and Run
+
+
+**Step 1: Compile the code**
+
+Use the following command to compile `main.c` and `UltrasonicSensor.c` together into a single executable file named `main`:
+
+```bash
+gcc main.c UltrasonicSensor.c -o main
+```
+
+* `gcc` is the GNU Compiler Collection command for compiling C programs.
+* `main.c UltrasonicSensor.c` are the source files being compiled.
+* `-o main` specifies the output executable file name (`main`).
+
+If the compilation is successful, no errors will appear, and an executable file named `main` (or `main.exe` on Windows) will be created in your current directory.
+
+---
+
+**Step 2: Run the program**
+
+  ```bash
+ .\main.exe
   ```
+
+
+
+
+
+---
+
+
+
  
