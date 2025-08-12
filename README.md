@@ -3,6 +3,8 @@
 
 ## VSDSquadron FM: Hardware Summary
 
+![VSD Image](https://github.com/eceelango/VSD-FPGA-Based-RISC-V-Maze-Solver/blob/a8eadaca49bd8b435456cc564fe6d5cd75bb72e5/Pictures/VSD.jpg)
+
 ### Key Specifications
 
 | Feature                   | Specification                        |
