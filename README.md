@@ -234,7 +234,7 @@ If the compilation is successful, no errors will appear, and an executable file 
 ---
 
 ## 📺Sample Output
-![Output](Pictures/Output.png)
+![Output](https://github.com/eceelango/VSD-FPGA-Based-RISC-V-Maze-Solver/blob/e5a02f091402c9872f392c2ba31b3f96e1d3e0df/Pictures/Output_1.png)
 
 ### 🚀 Version 2 – Single-File Implementation
 
@@ -367,7 +367,10 @@ void delay(long iterations) {
   ```bash
   gcc full_code.c -o full_code
   ```
-
+---
+  
+## 📺Sample Output
+![Output](https://github.com/eceelango/VSD-FPGA-Based-RISC-V-Maze-Solver/blob/e5a02f091402c9872f392c2ba31b3f96e1d3e0df/Pictures/Output_1.png)
 
   
 
