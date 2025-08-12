@@ -210,7 +210,7 @@ void readAndProcessSensors();
 ### Compile and Run
 
 
-**Step 1: Compile the code**
+**🧱Step 1: Compile the code**
 
 Use the following command to compile `main.c` and `UltrasonicSensor.c` together into a single executable file named `main`:
 
@@ -226,14 +226,14 @@ If the compilation is successful, no errors will appear, and an executable file 
 
 ---
 
-**Step 2: Run the program**
+**▶️Step 2: Run the program**
 
   ```bash
  .\main.exe
   ```
 ---
 
-## Sample Output
+## 📺Sample Output
 ![Output](Pictures/Output.png)
 
 ### 🚀 Version 2 – Single-File Implementation
@@ -362,7 +362,7 @@ void delay(long iterations) {
 
 - ### **Compile and run:**
 
-  **Step 1: Compile the code**
+  **🛠️Step 1: Compile the code**
 
   ```bash
   gcc full_code.c -o full_code
