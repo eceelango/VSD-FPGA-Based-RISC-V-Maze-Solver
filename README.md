@@ -51,7 +51,7 @@ This involves:
 ---
 
 ### 🔄 Flowchart
-![Flowchart]([images/flowchart.png](https://github.com/eceelango/VSD-FPGA-Based-RISC-V-Maze-Solver/blob/7c9de58f762a67be2234396bfa26f937107c8c38/Pictures/Flow_Chart.jpg)) 
+![Flowchart](https://github.com/eceelango/VSD-FPGA-Based-RISC-V-Maze-Solver/blob/7c9de58f762a67be2234396bfa26f937107c8c38/Pictures/Flow_Chart.jpg) 
 
 ---
 
