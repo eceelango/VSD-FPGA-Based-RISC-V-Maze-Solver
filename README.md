@@ -46,12 +46,12 @@ This involves:
 
 ---
 ### 🔍 Block Diagram
-![Block Diagram](images/block_diagram.png) 
+![Block Diagram](https://github.com/eceelango/VSD-FPGA-Based-RISC-V-Maze-Solver/blob/7c9de58f762a67be2234396bfa26f937107c8c38/Pictures/Block_Diagram.jpg) 
 
 ---
 
 ### 🔄 Flowchart
-![Flowchart](images/flowchart.png) 
+![Flowchart]([images/flowchart.png](https://github.com/eceelango/VSD-FPGA-Based-RISC-V-Maze-Solver/blob/7c9de58f762a67be2234396bfa26f937107c8c38/Pictures/Flow_Chart.jpg)) 
 
 ---
 
