@@ -505,36 +505,65 @@ void moveForward() {
 //Condition for moving motor right ---- Motor1A=1, Motor1B=0, Motor2A=0, Motor2B=1
 
 
-void turnRight() {
-    printf("\n----------------------------------------------");
-    printf("\n\tTurning right");
-    Motor1A=1; Motor1B=0;
-    Motor2A=0; Motor2B=1;
-    printf("\nMotor1A=1, Motor1B=0, Motor2A=0, Motor2B=1");
-    printf("\n----------------------------------------------\n");
+ // Debug print motor values
+    printf("Motor1A: %2x, Motor1B: %2x, Motor2A: %2x, Motor2B: %2x\n", Motor1A, Motor1B, Motor2A, Motor2B);
+
+    // Inline assembly for motor control logic using x30 register
+    asm volatile(
+        "li x30, 0xF0000000\n\t"    // Load mask value into x30 register
+        "and %0, zero, x30\n\t"     // and Motor1A, zero, x30
+        "ori %0, %0, 16\n\t"        // ori Motor1A, Motor1A, 16
+        "li %1, 0\n\t"              // li Motor1B, zero
+        "ori %2, x30, 256\n\t"      // ori Motor2A, Motor2A, 256
+        "li %3, 0\n\t"              // li Motor2B, zero
+        : "=r"(Motor1A), "=r"(Motor1B), "=r"(Motor2A), "=r"(Motor2B)
+        :
+        : "x30"
+    );
+
     delay(700);
 }
+
 
 //Condition for moving motor left ---- Motor1A=0, Motor1B=1, Motor2A=1, Motor2B=0
 
 void turnLeft() {
-    printf("\n----------------------------------------------");
-    printf("\n\tTurning left");
-    Motor1A=0; Motor1B=1;
-    Motor2A=1; Motor2B=0;
-    printf("\nMotor1A=0, Motor1B=1, Motor2A=1, Motor2B=0");
-    printf("\n----------------------------------------------\n");
+     // Debug print motor values
+    printf("Motor1A: %2x, Motor1B: %2x, Motor2A: %2x, Motor2B: %2x\n", Motor1A, Motor1B, Motor2A, Motor2B);
+
+    // Inline assembly for motor control logic using x30 register
+    asm volatile(
+        "li x30, 0xF0000000\n\t"    // Load mask value into x30 register
+        "li %0, 0\n\t"              // li Motor1A, zero
+        "ori %1, x30, 32\n\t"       // ori Motor1B, Motor1B, 32
+        "li %2, 0\n\t"              // li Motor2A, zero
+        "ori %3, x30, 512\n\t"      // ori Motor2B, Motor2B, 512
+        : "=r"(Motor1A), "=r"(Motor1B), "=r"(Motor2A), "=r"(Motor2B)
+        :
+        : "x30"
+    );
+
     delay(700);
 }
 
 //Condition for moving motor back ---- Motor1A=1, Motor1B=0, Motor2A=1, Motor2B=0
 void goBack() {
-    printf("\n----------------------------------------------");
-    printf("\n\tU Turn");
-    Motor1A=1; Motor1B=0;
-    Motor2A=1; Motor2B=0;
-    printf("\nMotor1A=1, Motor1B=0, Motor2A=1, Motor2B=0");
-    printf("\n----------------------------------------------\n");
+ // Debug print motor values
+    printf("Motor1A: %2x, Motor1B: %2x, Motor2A: %2x, Motor2B: %2x\n", Motor1A, Motor1B, Motor2A, Motor2B);
+
+    // Inline assembly for motor control logic using x30 register
+    asm volatile(
+        "li x30, 0xF0000000\n\t"    // Load mask value into x30 register
+        "and %0, zero, x30\n\t"     // and Motor1A, zero, x30
+        "ori %0, %0, 16\n\t"        // ori Motor1A, Motor1A, 16
+        "li %1, 0\n\t"              // li Motor1B, zero
+        "ori %2, x30, 256\n\t"      // ori Motor2A, Motor2A, 256
+        "li %3, 0\n\t"              // li Motor2B, zero
+        : "=r"(Motor1A), "=r"(Motor1B), "=r"(Motor2A), "=r"(Motor2B)
+        :
+        : "x30"
+    );
+
     delay(1400);
 }
 
