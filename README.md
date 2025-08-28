@@ -388,6 +388,164 @@ void delay(long iterations) {
 
 ## C Code with inline Assembly
 ```
+
+#include <stdio.h>
+
+// ---------------------- Sensor Module ----------------------
+// Sensor signals: 0 = low (blocked), 1 = high (clear)
+int Sensor1 = 0;  // Left Sensor
+int Sensor2 = 0;  // Front Sensor
+int Sensor3 = 0;  // Right Sensor
+ int dist1, dist2, dist3;
+
+#define THRESHOLD 10  // Threshold in cm
+
+// ---------------------- Motor Control ----------------------
+int Motor1A=0, Motor1B=0, Motor2A=0, Motor2B=0;
+
+void moveForward();
+void turnRight();
+void turnLeft();
+void goBack();
+void delay(long iterations);
+void readSensors(int *dist1, int *dist2, int *dist3);
+
+
+// ---------------------- Main Logic ----------------------
+int main() {
+    while(1) {
+  // Get distance readings from user input
+    printf("\nEnter distance for Sensor3 (Right): ");
+    scanf("%d", &dist3);
+    printf("Enter distance for Sensor2 (Front): ");
+    scanf("%d", &dist2);
+    printf("Enter distance for Sensor1 (Left): ");
+    scanf("%d", &dist1);
+ 
+   // Distance > THRESHOLD means path is clear (1), else blocked (0)
+    Sensor3 = (dist3 > THRESHOLD) ? 1 : 0;
+    Sensor2 = (dist2 > THRESHOLD) ? 1 : 0;
+    Sensor1 = (dist1 > THRESHOLD) ? 1 : 0;
+
+    printf("\nProcessed Signals => Right: %d, Front: %d, Left: %d\n",
+           Sensor3, Sensor2, Sensor1);
+
+        if(Sensor3 == 1) {
+            // Right clear → turn right immediately
+            printf("Turning Right...\n");
+            turnRight();
+     
+        }
+        else {
+            // Right blocked, check front and left
+            if(Sensor2 == 1) {
+            printf("Moving Forward...\n");
+            moveForward();
+ 
+            } 
+            else if(Sensor1 == 1) {
+           printf("Turning Left...\n");
+           turnLeft();
+            } 
+            else {
+           printf("Going Back...\n");
+                goBack();
+            }
+        }
+    }
+    return 0;
+}
+
+
+// Function to read sensor values using inline assembly
+void readSensors(int *dist1, int *dist2, int *dist3);
+{
+     // Inline assembly to read sensor values using x30 register
+    asm volatile(
+        "li x30, 0xFFFFFCC8\n\t"   // Load mask value into x30 register
+        "srli %0, x30, 0\n\t"      // Shift right logical x30 by 0 to extract Sensor1
+        "andi %0, %0, 1\n\t"       // andi Sensor1, Sensor1, 1
+        "srli x30, x30, 1\n\t"     // Shift right logical x30 by 1 to extract Sensor2
+        "andi %1, x30, 1\n\t"      // andi Sensor2, x30, 1
+        "srli x30, x30, 1\n\t"     // Shift right logical x30 by 1 to extract Sensor3
+        "andi %2, x30, 1\n\t"      // andi Sensor3, x30, 1
+        : "=r"(*Sensor1), "=r"(*Sensor2), "=r"(*Sensor3)
+        :
+        : "x30"
+    );
+ printf("Sensor 1: %2x, Sensor 2: %2x, Sensor 3: %2x\n", Sensor1, Sensor2, Sensor3);
+} 
+ 
+}
+
+
+
+// ---------------------- Movement Functions ----------------------
+
+//Condition for moving motor forward ----  Motor1A=1, Motor1B=0, Motor2A=1, Motor2B=0
+void moveForward() {
+    // Debug print motor values
+ printf("Motor1A: %2x, Motor1B: %2x, Motor2A: %2x, Motor2B: %2x\n", Motor1A, Motor1B, Motor2A, Motor2B);
+
+    // Inline assembly for motor control logic using x30 register
+    asm volatile(
+        "li x30, 0xFFFFFCC8\n\t"    // Load mask value into x30 register
+        "and %0, zero, x30\n\t"     // and Motor1A, zero, x30
+        "ori %0, %0, 16\n\t"        // ori Motor1A, Motor1A, 16
+        "li %1, 0\n\t"              // li Motor1B, zero
+        "li %2, 0\n\t"              // li Motor2A, zero
+        "ori %3, x30, 512\n\t"      // ori Motor2B, Motor2B, 512
+        : "=r"(Motor1A), "=r"(Motor1B), "=r"(Motor2A), "=r"(Motor2B)
+        :
+        : "x30"
+    );
+
+    delay(1400);
+}
+
+
+
+//Condition for moving motor right ---- Motor1A=1, Motor1B=0, Motor2A=0, Motor2B=1
+
+
+void turnRight() {
+    printf("\n----------------------------------------------");
+    printf("\n\tTurning right");
+    Motor1A=1; Motor1B=0;
+    Motor2A=0; Motor2B=1;
+    printf("\nMotor1A=1, Motor1B=0, Motor2A=0, Motor2B=1");
+    printf("\n----------------------------------------------\n");
+    delay(700);
+}
+
+//Condition for moving motor left ---- Motor1A=0, Motor1B=1, Motor2A=1, Motor2B=0
+
+void turnLeft() {
+    printf("\n----------------------------------------------");
+    printf("\n\tTurning left");
+    Motor1A=0; Motor1B=1;
+    Motor2A=1; Motor2B=0;
+    printf("\nMotor1A=0, Motor1B=1, Motor2A=1, Motor2B=0");
+    printf("\n----------------------------------------------\n");
+    delay(700);
+}
+
+//Condition for moving motor back ---- Motor1A=1, Motor1B=0, Motor2A=1, Motor2B=0
+void goBack() {
+    printf("\n----------------------------------------------");
+    printf("\n\tU Turn");
+    Motor1A=1; Motor1B=0;
+    Motor2A=1; Motor2B=0;
+    printf("\nMotor1A=1, Motor1B=0, Motor2A=1, Motor2B=0");
+    printf("\n----------------------------------------------\n");
+    delay(1400);
+}
+
+void delay(long iterations) {
+    for(long i = 0; i < iterations; i++) {
+        // empty loop for delay simulation
+    }
+}
   
 ```
 
