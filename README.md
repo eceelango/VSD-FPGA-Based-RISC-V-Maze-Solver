@@ -371,9 +371,23 @@ void delay(long iterations) {
   
 ## 📺Sample Output
 ![Output](https://github.com/eceelango/VSD-FPGA-Based-RISC-V-Maze-Solver/blob/42e16cd91dbaf2d358ac0b996f6f0042a1c673ad/Pictures/Output_2.png)
+## Register architecture of x30 for GPIOs
 
++ Input Signals - Sensor1, Sensor2, Sensor3;
++ Output Signals -  Motor1A, Motor1B, Motor2A, Motor2B;
++ Number of Register bits Required - 28
++ Register bits allocations are given below
+
++ x30 [23:0] is Sensor -  Sensor 1 - x30[7:0]; Sensor 2 - x30[15:8]; Sensor 3 - x30[23:16];   // Input - Read
++ x30 [25:24] is e1 & e2 - e1 x30 [24] ; e2 x30 [25] ;  // Output Write
++ x30 [29:28] is d1 & d2 - d1 x30 [28] ; d2 x30 [29] ;  // Output Write
+
+# **Assembly In line Code for Maze Controller**
+
+## C Code with inline Assembly
+```
   
-
+```
 
 
 
