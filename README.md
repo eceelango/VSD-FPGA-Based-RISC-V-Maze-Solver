@@ -380,7 +380,7 @@ void delay(long iterations) {
 
 + x30 [23:0] is Sensor -  Sensor 1 - x30[7:0]; Sensor 2 - x30[15:8]; Sensor 3 - x30[23:16];   // Input - Read
 + x30 [25:24] is e1 & e2 - e1 x30 [24] ; e2 x30 [25] ;  // Output Write
-+ x30 [29:28] is d1 & d2 - d1 x30 [28] ; d2 x30 [29] ;  // Output Write
++ x30 [27:26] is d1 & d2 - d1 x30 [26] ; d2 x30 [27] ;  // Output Write
 
 + Here Threshold is fixed in next iteration we will get the threshold as a input 
 
@@ -462,23 +462,20 @@ void readSensors(int *dist1, int *dist2, int *dist3);
 {
      // Inline assembly to read sensor values using x30 register
     asm volatile(
-        "li x30, 0xFFFFFCC8\n\t"   // Load mask value into x30 register
-        "srli %0, x30, 0\n\t"      // Shift right logical x30 by 0 to extract Sensor1
-        "andi %0, %0, 1\n\t"       // andi Sensor1, Sensor1, 1
-        "srli x30, x30, 1\n\t"     // Shift right logical x30 by 1 to extract Sensor2
-        "andi %1, x30, 1\n\t"      // andi Sensor2, x30, 1
-        "srli x30, x30, 1\n\t"     // Shift right logical x30 by 1 to extract Sensor3
-        "andi %2, x30, 1\n\t"      // andi Sensor3, x30, 1
-        : "=r"(*Sensor1), "=r"(*Sensor2), "=r"(*Sensor3)
+        "li x30, 0xF0000000 \n\t"   // Load mask value into x30 register
+        "srli %0, x30, 8\n\t"      // Shift right logical x30 by 0 to extract distance1
+        "andi %0, %0, 1\n\t"       // andi dist1, dist1, 1
+        "srli x30, x30, 8\n\t"     // Shift right logical x30 by 1 to extract distance2
+        "andi %1, x30, 1\n\t"      // andi dist2, x30, 1
+        "srli x30, x30, 8\n\t"     // Shift right logical x30 by 1 to extract distance3
+        "andi %2, x30, 1\n\t"      // andi dist3, x30, 1
+        : "=r"(*dist1), "=r"(*dist2), "=r"(*dist3)
         :
         : "x30"
     );
- printf("Sensor 1: %2x, Sensor 2: %2x, Sensor 3: %2x\n", Sensor1, Sensor2, Sensor3);
+ printf("dist 1: %2x, dist 2: %2x, dist 3: %2x\n", dist1, dist2, dist3);
 } 
  
-}
-
-
 
 // ---------------------- Movement Functions ----------------------
 
@@ -489,7 +486,7 @@ void moveForward() {
 
     // Inline assembly for motor control logic using x30 register
     asm volatile(
-        "li x30, 0xFFFFFCC8\n\t"    // Load mask value into x30 register
+        "li x30, 0xF0000000\n\t"    // Load mask value into x30 register
         "and %0, zero, x30\n\t"     // and Motor1A, zero, x30
         "ori %0, %0, 16\n\t"        // ori Motor1A, Motor1A, 16
         "li %1, 0\n\t"              // li Motor1B, zero
