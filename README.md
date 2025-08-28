@@ -382,6 +382,8 @@ void delay(long iterations) {
 + x30 [25:24] is e1 & e2 - e1 x30 [24] ; e2 x30 [25] ;  // Output Write
 + x30 [29:28] is d1 & d2 - d1 x30 [28] ; d2 x30 [29] ;  // Output Write
 
++ Here Threshold is fixed in next iteration we will get the threshold as a input 
+
 # **Assembly In line Code for Maze Controller**
 
 ## C Code with inline Assembly
