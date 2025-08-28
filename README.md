@@ -379,10 +379,10 @@ void delay(long iterations) {
 + Register bits allocations are given below
 
 + x30 [23:0] is Sensor -  Sensor 1 - x30[7:0]; Sensor 2 - x30[15:8]; Sensor 3 - x30[23:16];   // Input - Read
-+ x30 [25:24] is e1 & e2 - e1 x30 [24] ; e2 x30 [25] ;  // Output Write
-+ x30 [27:26] is d1 & d2 - d1 x30 [26] ; d2 x30 [27] ;  // Output Write
++ x30 [25:24] is e1 & e2 - e1 x30 [24] ; e2 x30 [25] ;  // Output Write  Motor1A = 2^24 =167777216  Motor1B = 2^25 = 33554432
++ x30 [27:26] is d1 & d2 - d1 x30 [26] ; d2 x30 [27] ;  // Output Write  Motor2A = 2^26 =67108864  Motor2B = 2^27 =134217728
 
-+ Here Threshold is fixed in next iteration we will get the threshold as a input 
++ Here Threshold is fixed now. In next iteration, we will get the threshold as a input 
 
 # **Assembly In line Code for Maze Controller**
 
@@ -488,10 +488,10 @@ void moveForward() {
     asm volatile(
         "li x30, 0xF0000000\n\t"    // Load mask value into x30 register
         "and %0, zero, x30\n\t"     // and Motor1A, zero, x30
-        "ori %0, %0, 16\n\t"        // ori Motor1A, Motor1A, 16
+        "ori %0, %0, 16777216\n\t"        // ori Motor1A, Motor1A, 16
         "li %1, 0\n\t"              // li Motor1B, zero
         "li %2, 0\n\t"              // li Motor2A, zero
-        "ori %3, x30, 512\n\t"      // ori Motor2B, Motor2B, 512
+        "ori %3, x30, 134217728\n\t"      // ori Motor2B, Motor2B, 512
         : "=r"(Motor1A), "=r"(Motor1B), "=r"(Motor2A), "=r"(Motor2B)
         :
         : "x30"
@@ -512,9 +512,9 @@ void moveForward() {
     asm volatile(
         "li x30, 0xF0000000\n\t"    // Load mask value into x30 register
         "and %0, zero, x30\n\t"     // and Motor1A, zero, x30
-        "ori %0, %0, 16\n\t"        // ori Motor1A, Motor1A, 16
+        "ori %0, %0, 16777216\n\t"        // ori Motor1A, Motor1A, 16
         "li %1, 0\n\t"              // li Motor1B, zero
-        "ori %2, x30, 256\n\t"      // ori Motor2A, Motor2A, 256
+        "ori %2, x30, 67108864\n\t"      // ori Motor2A, Motor2A, 256
         "li %3, 0\n\t"              // li Motor2B, zero
         : "=r"(Motor1A), "=r"(Motor1B), "=r"(Motor2A), "=r"(Motor2B)
         :
@@ -535,9 +535,9 @@ void turnLeft() {
     asm volatile(
         "li x30, 0xF0000000\n\t"    // Load mask value into x30 register
         "li %0, 0\n\t"              // li Motor1A, zero
-        "ori %1, x30, 32\n\t"       // ori Motor1B, Motor1B, 32
+        "ori %1, x30, 33554432\n\t"       // ori Motor1B, Motor1B, 32
         "li %2, 0\n\t"              // li Motor2A, zero
-        "ori %3, x30, 512\n\t"      // ori Motor2B, Motor2B, 512
+        "ori %3, x30, 134217728\n\t"      // ori Motor2B, Motor2B, 512
         : "=r"(Motor1A), "=r"(Motor1B), "=r"(Motor2A), "=r"(Motor2B)
         :
         : "x30"
@@ -555,9 +555,9 @@ void goBack() {
     asm volatile(
         "li x30, 0xF0000000\n\t"    // Load mask value into x30 register
         "and %0, zero, x30\n\t"     // and Motor1A, zero, x30
-        "ori %0, %0, 16\n\t"        // ori Motor1A, Motor1A, 16
+        "ori %0, %0, 16777216\n\t"        // ori Motor1A, Motor1A, 16
         "li %1, 0\n\t"              // li Motor1B, zero
-        "ori %2, x30, 256\n\t"      // ori Motor2A, Motor2A, 256
+        "ori %2, x30, 67108864\n\t"      // ori Motor2A, Motor2A, 256
         "li %3, 0\n\t"              // li Motor2B, zero
         : "=r"(Motor1A), "=r"(Motor1B), "=r"(Motor2A), "=r"(Motor2B)
         :
