@@ -458,23 +458,28 @@ int main() {
 
 
 // Function to read sensor values using inline assembly
-void readSensors(int *dist1, int *dist2, int *dist3);
+void readSensors(int *dist1, int *dist2, int *dist3)
 {
      // Inline assembly to read sensor values using x30 register
+        int d1,d2,d3;
+        int clear_mask=0x0FFFFFFF;
     asm volatile(
-        "li x30, 0xF0000000 \n\t"   // Load mask value into x30 register
-        "srli %0, x30, 8\n\t"      // Shift right logical x30 by 0 to extract distance1
-        "andi %0, %0, 1\n\t"       // andi dist1, dist1, 1
-        "srli x30, x30, 8\n\t"     // Shift right logical x30 by 1 to extract distance2
-        "andi %1, x30, 1\n\t"      // andi dist2, x30, 1
-        "srli x30, x30, 8\n\t"     // Shift right logical x30 by 1 to extract distance3
-        "andi %2, x30, 1\n\t"      // andi dist3, x30, 1
-        : "=r"(*dist1), "=r"(*dist2), "=r"(*dist3)
-        :
+        "andi x30, x30,%3 \n\t" // and the x30 with mask we are clearing the x30 unwanted bits
+        "andi %0, x30, 0xFF\n\t"     // keep only last 8 bits - distance 1
+        "srli %1, x30, 8\n\t"     // Shift right logical x30 by 8 to extract distance2
+        "andi %1, %1, 0xFF\n\t"      // andi dist2, %1, 0xFF
+        "srli %2, x30, 16\n\t"     // Shift further right logical x30 by 16 to extract distance3
+        "andi %2, %2, 0xFF\n\t"      // andi dist3, %2, 0xFF
+        : "=r"(d1), "=r"(d2), "=r"(d3)
+        : "r"(clear_mask)
         : "x30"
     );
- printf("dist 1: %2x, dist 2: %2x, dist 3: %2x\n", dist1, dist2, dist3);
-} 
+
+   *dist1 = d1;
+    *dist2 = d2;
+    *dist3 = d3;
+printf("dist 1: %2x, dist 2: %2x, dist 3: %2x\n", dist1, dist2, dist3);
+}
  
 
 // ---------------------- Movement Functions ----------------------
