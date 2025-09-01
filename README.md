@@ -493,92 +493,139 @@ printf("dist 1: %2x, dist 2: %2x, dist 3: %2x\n", dist1, dist2, dist3);
 // ---------------------- Movement Functions ----------------------
 
 //Condition for moving motor forward ----  Motor1A=1, Motor1B=0, Motor2A=1, Motor2B=0
+asm volatile(
+    // Clear bits [27:24] in x30
+    "li t0, 0x0FFFFFFF\n\t"      // mask to keep lower 28 bits
+    "and x30, x30, t0\n\t"       // clear [27:24]
+
+    // Set Motor1A (bit 24) and Motor2A (bit 26)
+    "li t1, (1 << 24) | (1 << 26)\n\t"
+    "or x30, x30, t1\n\t"
+
+    // Write back to Motor outputs
+    "andi %0, x30, (1 << 24)\n\t"    // Motor1A
+    "andi %1, x30, (1 << 25)\n\t"    // Motor1B
+    "andi %2, x30, (1 << 26)\n\t"    // Motor2A
+    "andi %3, x30, (1 << 27)\n\t"    // Motor2B
+
+    : "=r"(Motor1A), "=r"(Motor1B), "=r"(Motor2A), "=r"(Motor2B)
+    :
+    : "t0", "t1", "x30"
+);
+
+
+// ---------------------- Movement Functions ----------------------
+
+// Forward
 void moveForward() {
-    // Debug print motor values
+// Debug print motor values
+     asm volatile(
+        "li t0, 0x0FFFFFFF\n\t"        // mask to clear bits [27:24]
+        "and x30, x30, t0\n\t"
+        "li t1, (1 << 24) | (1 << 26)\n\t"   // Motor1A + Motor2A
+        "or x30, x30, t1\n\t"
+
+        "andi %0, x30, (1 << 24)\n\t"
+        "andi %1, x30, (1 << 25)\n\t"
+        "andi %2, x30, (1 << 26)\n\t"
+        "andi %3, x30, (1 << 27)\n\t"
+
+        : "=r"(Motor1A), "=r"(Motor1B), "=r"(Motor2A), "=r"(Motor2B)
+        :
+        : "t0", "t1", "x30"
+    );
  printf("Motor1A: %2x, Motor1B: %2x, Motor2A: %2x, Motor2B: %2x\n", Motor1A, Motor1B, Motor2A, Motor2B);
-
-    // Inline assembly for motor control logic using x30 register
-    asm volatile(
-        "li x30, 0xF0000000\n\t"    // Load mask value into x30 register
-        "and %0, zero, x30\n\t"     // and Motor1A, zero, x30
-        "ori %0, %0, 16777216\n\t"        // ori Motor1A, Motor1A, 16
-        "li %1, 0\n\t"              // li Motor1B, zero
-        "li %2, 0\n\t"              // li Motor2A, zero
-        "ori %3, x30, 134217728\n\t"      // ori Motor2B, Motor2B, 512
-        : "=r"(Motor1A), "=r"(Motor1B), "=r"(Motor2A), "=r"(Motor2B)
-        :
-        : "x30"
-    );
-
-    delay(1400);
-}
-
-
-
-//Condition for moving motor right ---- Motor1A=1, Motor1B=0, Motor2A=0, Motor2B=1
-
-
- // Debug print motor values
-    printf("Motor1A: %2x, Motor1B: %2x, Motor2A: %2x, Motor2B: %2x\n", Motor1A, Motor1B, Motor2A, Motor2B);
-
-    // Inline assembly for motor control logic using x30 register
-    asm volatile(
-        "li x30, 0xF0000000\n\t"    // Load mask value into x30 register
-        "and %0, zero, x30\n\t"     // and Motor1A, zero, x30
-        "ori %0, %0, 16777216\n\t"        // ori Motor1A, Motor1A, 16
-        "li %1, 0\n\t"              // li Motor1B, zero
-        "ori %2, x30, 67108864\n\t"      // ori Motor2A, Motor2A, 256
-        "li %3, 0\n\t"              // li Motor2B, zero
-        : "=r"(Motor1A), "=r"(Motor1B), "=r"(Motor2A), "=r"(Motor2B)
-        :
-        : "x30"
-    );
-
     delay(700);
 }
 
-
-//Condition for moving motor left ---- Motor1A=0, Motor1B=1, Motor2A=1, Motor2B=0
-
-void turnLeft() {
-     // Debug print motor values
-    printf("Motor1A: %2x, Motor1B: %2x, Motor2A: %2x, Motor2B: %2x\n", Motor1A, Motor1B, Motor2A, Motor2B);
-
-    // Inline assembly for motor control logic using x30 register
-    asm volatile(
-        "li x30, 0xF0000000\n\t"    // Load mask value into x30 register
-        "li %0, 0\n\t"              // li Motor1A, zero
-        "ori %1, x30, 33554432\n\t"       // ori Motor1B, Motor1B, 32
-        "li %2, 0\n\t"              // li Motor2A, zero
-        "ori %3, x30, 134217728\n\t"      // ori Motor2B, Motor2B, 512
-        : "=r"(Motor1A), "=r"(Motor1B), "=r"(Motor2A), "=r"(Motor2B)
-        :
-        : "x30"
-    );
-
-    delay(700);
-}
-
-//Condition for moving motor back ---- Motor1A=1, Motor1B=0, Motor2A=1, Motor2B=0
+// Backward
 void goBack() {
  // Debug print motor values
-    printf("Motor1A: %2x, Motor1B: %2x, Motor2A: %2x, Motor2B: %2x\n", Motor1A, Motor1B, Motor2A, Motor2B);
+       asm volatile(
+        "li t0, 0x0FFFFFFF\n\t"
+        "and x30, x30, t0\n\t"
+        "li t1, (1 << 25) | (1 << 27)\n\t"   // Motor1B + Motor2B
+        "or x30, x30, t1\n\t"
 
-    // Inline assembly for motor control logic using x30 register
-    asm volatile(
-        "li x30, 0xF0000000\n\t"    // Load mask value into x30 register
-        "and %0, zero, x30\n\t"     // and Motor1A, zero, x30
-        "ori %0, %0, 16777216\n\t"        // ori Motor1A, Motor1A, 16
-        "li %1, 0\n\t"              // li Motor1B, zero
-        "ori %2, x30, 67108864\n\t"      // ori Motor2A, Motor2A, 256
-        "li %3, 0\n\t"              // li Motor2B, zero
+        "andi %0, x30, (1 << 24)\n\t"
+        "andi %1, x30, (1 << 25)\n\t"
+        "andi %2, x30, (1 << 26)\n\t"
+        "andi %3, x30, (1 << 27)\n\t"
+
         : "=r"(Motor1A), "=r"(Motor1B), "=r"(Motor2A), "=r"(Motor2B)
         :
-        : "x30"
+        : "t0", "t1", "x30"
     );
-
+    // Debug print motor values
+    printf("Motor1A: %2x, Motor1B: %2x, Motor2A: %2x, Motor2B: %2x\n", Motor1A, Motor1B, Motor2A, Motor2B);
     delay(1400);
 }
+
+// Left
+void turnLeft() {
+ 
+    asm volatile(
+        "li t0, 0x0FFFFFFF\n\t"
+        "and x30, x30, t0\n\t"
+        "li t1, (1 << 25) | (1 << 26)\n\t"   // Motor1B + Motor2A
+        "or x30, x30, t1\n\t"
+
+        "andi %0, x30, (1 << 24)\n\t"
+        "andi %1, x30, (1 << 25)\n\t"
+        "andi %2, x30, (1 << 26)\n\t"
+        "andi %3, x30, (1 << 27)\n\t"
+
+        : "=r"(Motor1A), "=r"(Motor1B), "=r"(Motor2A), "=r"(Motor2B)
+        :
+        : "t0", "t1", "x30"
+    );
+    // Debug print motor values
+    printf("Motor1A: %2x, Motor1B: %2x, Motor2A: %2x, Motor2B: %2x\n", Motor1A, Motor1B, Motor2A, Motor2B);
+    delay(700);
+}
+
+// Right
+void moveRight() {
+    asm volatile(
+        "li t0, 0x0FFFFFFF\n\t"
+        "and x30, x30, t0\n\t"
+        "li t1, (1 << 24) | (1 << 27)\n\t"   // Motor1A + Motor2B
+        "or x30, x30, t1\n\t"
+
+        "andi %0, x30, (1 << 24)\n\t"
+        "andi %1, x30, (1 << 25)\n\t"
+        "andi %2, x30, (1 << 26)\n\t"
+        "andi %3, x30, (1 << 27)\n\t"
+
+        : "=r"(Motor1A), "=r"(Motor1B), "=r"(Motor2A), "=r"(Motor2B)
+        :
+        : "t0", "t1", "x30"
+    );
+    // Debug print motor values
+    printf("Motor1A: %2x, Motor1B: %2x, Motor2A: %2x, Motor2B: %2x\n", Motor1A, Motor1B, Motor2A, Motor2B);
+    delay(1400);
+}
+
+// Stop
+void stopMovement() {
+    asm volatile(
+        "li t0, 0x0FFFFFFF\n\t"
+        "and x30, x30, t0\n\t"          // clear all motor bits
+
+        "andi %0, x30, (1 << 24)\n\t"
+        "andi %1, x30, (1 << 25)\n\t"
+        "andi %2, x30, (1 << 26)\n\t"
+        "andi %3, x30, (1 << 27)\n\t"
+
+        : "=r"(Motor1A), "=r"(Motor1B), "=r"(Motor2A), "=r"(Motor2B)
+        :
+        : "t0", "x30"
+    );
+    // Debug print motor values
+    printf("Motor1A: %2x, Motor1B: %2x, Motor2A: %2x, Motor2B: %2x\n", Motor1A, Motor1B, Motor2A, Motor2B);
+    delay(1400);
+}
+
 
 void delay(long iterations) {
     for(long i = 0; i < iterations; i++) {
