@@ -384,6 +384,14 @@ void delay(long iterations) {
 
 + Here Threshold is fixed now. In next iteration, we will get the threshold as a input 
 
+| Movement | Motor1A | Motor1B | Motor2A | Motor2B |
+| -------- | ------- | ------- | ------- | ------- |
+| Forward  | 1       | 0       | 1       | 0       |
+| Backward | 0       | 1       | 0       | 1       |
+| Left     | 0       | 1       | 1       | 0       |
+| Right    | 1       | 0       | 0       | 1       |
+| Stop     | 0       | 0       | 0       | 0       |
+
 # **Assembly In line Code for Maze Controller**
 
 ## C Code with inline Assembly
