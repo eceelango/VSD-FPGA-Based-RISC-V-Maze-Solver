@@ -468,51 +468,28 @@ int main() {
 // Function to read sensor values using inline assembly
 void readSensors(int *dist1, int *dist2, int *dist3)
 {
-     // Inline assembly to read sensor values using x30 register
-        int d1,d2,d3;
-        int clear_mask=0x0FFFFFFF;
+    int d1, d2, d3;
+    int clear_mask = 0x0FFFFFFF;
+
     asm volatile(
-        "andi x30, x30,%3 \n\t" // and the x30 with mask we are clearing the x30 unwanted bits
-        "andi %0, x30, 0xFF\n\t"     // keep only last 8 bits - distance 1
-        "srli %1, x30, 8\n\t"     // Shift right logical x30 by 8 to extract distance2
-        "andi %1, %1, 0xFF\n\t"      // andi dist2, %1, 0xFF
-        "srli %2, x30, 16\n\t"     // Shift further right logical x30 by 16 to extract distance3
-        "andi %2, %2, 0xFF\n\t"      // andi dist3, %2, 0xFF
+        "andi t0, x30, %3\n\t"        // clear unwanted bits into t0
+        "andi %0, t0, 0xFF\n\t"       // dist1 = t0[7:0]
+        "srli t1, t0, 8\n\t"          // shift >> 8
+        "andi %1, t1, 0xFF\n\t"       // dist2 = t0[15:8]
+        "srli t2, t0, 16\n\t"         // shift >> 16
+        "andi %2, t2, 0xFF\n\t"       // dist3 = t0[23:16]
         : "=r"(d1), "=r"(d2), "=r"(d3)
         : "r"(clear_mask)
-        : "x30"
+        : "t0", "t1", "t2"
     );
 
-   *dist1 = d1;
+    *dist1 = d1;
     *dist2 = d2;
     *dist3 = d3;
-printf("dist 1: %2x, dist 2: %2x, dist 3: %2x\n", dist1, dist2, dist3);
+
+    printf("dist 1: %2x, dist 2: %2x, dist 3: %2x\n", *dist1, *dist2, *dist3);
 }
  
-
-// ---------------------- Movement Functions ----------------------
-
-//Condition for moving motor forward ----  Motor1A=1, Motor1B=0, Motor2A=1, Motor2B=0
-asm volatile(
-    // Clear bits [27:24] in x30
-    "li t0, 0x0FFFFFFF\n\t"      // mask to keep lower 28 bits
-    "and x30, x30, t0\n\t"       // clear [27:24]
-
-    // Set Motor1A (bit 24) and Motor2A (bit 26)
-    "li t1, (1 << 24) | (1 << 26)\n\t"
-    "or x30, x30, t1\n\t"
-
-    // Write back to Motor outputs
-    "andi %0, x30, (1 << 24)\n\t"    // Motor1A
-    "andi %1, x30, (1 << 25)\n\t"    // Motor1B
-    "andi %2, x30, (1 << 26)\n\t"    // Motor2A
-    "andi %3, x30, (1 << 27)\n\t"    // Motor2B
-
-    : "=r"(Motor1A), "=r"(Motor1B), "=r"(Motor2A), "=r"(Motor2B)
-    :
-    : "t0", "t1", "x30"
-);
-
 
 // ---------------------- Movement Functions ----------------------
 
