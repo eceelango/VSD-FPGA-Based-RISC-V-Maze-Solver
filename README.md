@@ -611,7 +611,231 @@ void delay(long iterations) {
 }
   
 ```
+## C Code with inline Assembly Final Version
+```
+#include <stdio.h>
 
+// ---------------------- Sensor Module ----------------------
+// Sensor signals: 0 = low (blocked), 1 = high (clear)
+int Sensor1 = 0;  // Left Sensor
+int Sensor2 = 0;  // Front Sensor
+int Sensor3 = 0;  // Right Sensor
+int dist1, dist2, dist3;
+
+#define THRESHOLD 10  // Threshold in cm
+
+// ---------------------- Motor Control ----------------------
+int Motor1A = 0, Motor1B = 0, Motor2A = 0, Motor2B = 0;
+uint32_t x30 = 0;  // Simulate x30 register
+
+void moveForward();
+void turnRight();
+void turnLeft();
+void goBack();
+void stopMovement();
+void delay(long iterations);
+void readSensors(int *dist1, int *dist2, int *dist3);
+
+// ---------------------- Main Logic ----------------------
+int main() {
+    while(1) {
+        // Get distance readings from user input
+        printf("\nEnter distance for Sensor3 (Right): ");
+        scanf("%d", &dist3);
+        printf("Enter distance for Sensor2 (Front): ");
+        scanf("%d", &dist2);
+        printf("Enter distance for Sensor1 (Left): ");
+        scanf("%d", &dist1);
+
+        // Distance > THRESHOLD means path is clear (1), else blocked (0)
+        Sensor3 = (dist3 > THRESHOLD) ? 1 : 0;
+        Sensor2 = (dist2 > THRESHOLD) ? 1 : 0;
+        Sensor1 = (dist1 > THRESHOLD) ? 1 : 0;
+
+        printf("\nProcessed Signals => Right: %d, Front: %d, Left: %d\n",
+               Sensor3, Sensor2, Sensor1);
+
+        if (Sensor3 == 1) {
+            printf("Turning Right...\n");
+            turnRight();
+        } else {
+            if (Sensor2 == 1) {
+                printf("Moving Forward...\n");
+                moveForward();
+            } else if (Sensor1 == 1) {
+                printf("Turning Left...\n");
+                turnLeft();
+            } else {
+                printf("Going Back...\n");
+                goBack();
+            }
+        }
+    }
+    return 0;
+}
+
+void readSensors(int *dist1, int *dist2, int *dist3)
+{
+    int d1, d2, d3;
+    int clear_mask = 0x0FFFFFFF;
+
+    asm volatile(
+        "mv t3, %3\n\t"
+        "and t0, x30, t3\n\t"
+        "li t4, 0xFF\n\t"
+        "and %0, t0, t4\n\t"
+        "srli t1, t0, 8\n\t"
+        "and %1, t1, t4\n\t"
+        "srli t2, t0, 16\n\t"
+        "and %2, t2, t4\n\t"
+        : "=r"(d1), "=r"(d2), "=r"(d3)
+        : "r"(clear_mask)
+        : "t0", "t1", "t2", "t3", "t4"
+    );
+
+    *dist1 = d1;
+    *dist2 = d2;
+    *dist3 = d3;
+
+    printf("dist 1: %2x, dist 2: %2x, dist 3: %2x\n", *dist1, *dist2, *dist3);
+}
+
+void moveForward() {
+    asm volatile(
+        "li t0, 0x0FFFFFFF\n\t"
+        "and x30, x30, t0\n\t"
+        "li t1, (1 << 24) | (1 << 26)\n\t"
+        "or x30, x30, t1\n\t"
+
+        "li t3, (1 << 24)\n\t"
+        "and %0, x30, t3\n\t"
+        "li t3, (1 << 25)\n\t"
+        "and %1, x30, t3\n\t"
+        "li t3, (1 << 26)\n\t"
+        "and %2, x30, t3\n\t"
+        "li t3, (1 << 27)\n\t"
+        "and %3, x30, t3\n\t"
+
+        : "=r"(Motor1A), "=r"(Motor1B), "=r"(Motor2A), "=r"(Motor2B)
+        :
+        : "t0", "t1", "t3", "x30"
+    );
+    printf("Motor1A: %2x, Motor1B: %2x, Motor2A: %2x, Motor2B: %2x\n",
+           Motor1A, Motor1B, Motor2A, Motor2B);
+    delay(700);
+}
+
+void goBack() {
+    asm volatile(
+        "li t0, 0x0FFFFFFF\n\t"
+        "and x30, x30, t0\n\t"
+        "li t1, (1 << 25) | (1 << 27)\n\t"
+        "or x30, x30, t1\n\t"
+
+        "li t3, (1 << 24)\n\t"
+        "and %0, x30, t3\n\t"
+        "li t3, (1 << 25)\n\t"
+        "and %1, x30, t3\n\t"
+        "li t3, (1 << 26)\n\t"
+        "and %2, x30, t3\n\t"
+        "li t3, (1 << 27)\n\t"
+        "and %3, x30, t3\n\t"
+
+        : "=r"(Motor1A), "=r"(Motor1B), "=r"(Motor2A), "=r"(Motor2B)
+        :
+        : "t0", "t1", "t3", "x30"
+    );
+    printf("Motor1A: %2x, Motor1B: %2x, Motor2A: %2x, Motor2B: %2x\n",
+           Motor1A, Motor1B, Motor2A, Motor2B);
+    delay(1400);
+}
+
+void turnLeft() {
+    asm volatile(
+        "li t0, 0x0FFFFFFF\n\t"
+        "and x30, x30, t0\n\t"
+        "li t1, (1 << 25) | (1 << 26)\n\t"
+        "or x30, x30, t1\n\t"
+
+        "li t3, (1 << 24)\n\t"
+        "and %0, x30, t3\n\t"
+        "li t3, (1 << 25)\n\t"
+        "and %1, x30, t3\n\t"
+        "li t3, (1 << 26)\n\t"
+        "and %2, x30, t3\n\t"
+        "li t3, (1 << 27)\n\t"
+        "and %3, x30, t3\n\t"
+
+        : "=r"(Motor1A), "=r"(Motor1B), "=r"(Motor2A), "=r"(Motor2B)
+        :
+        : "t0", "t1", "t3", "x30"
+    );
+    printf("Motor1A: %2x, Motor1B: %2x, Motor2A: %2x, Motor2B: %2x\n",
+           Motor1A, Motor1B, Motor2A, Motor2B);
+    delay(700);
+}
+
+void turnRight() {
+    asm volatile(
+        "li t0, 0x0FFFFFFF\n\t"
+        "and x30, x30, t0\n\t"
+        "li t1, (1 << 24) | (1 << 27)\n\t"
+        "or x30, x30, t1\n\t"
+
+        "li t3, (1 << 24)\n\t"
+        "and %0, x30, t3\n\t"
+        "li t3, (1 << 25)\n\t"
+        "and %1, x30, t3\n\t"
+        "li t3, (1 << 26)\n\t"
+        "and %2, x30, t3\n\t"
+        "li t3, (1 << 27)\n\t"
+        "and %3, x30, t3\n\t"
+
+        : "=r"(Motor1A), "=r"(Motor1B), "=r"(Motor2A), "=r"(Motor2B)
+        :
+        : "t0", "t1", "t3", "x30"
+    );
+    printf("Motor1A: %2x, Motor1B: %2x, Motor2A: %2x, Motor2B: %2x\n",
+           Motor1A, Motor1B, Motor2A, Motor2B);
+    delay(1400);
+}
+
+void stopMovement() {
+    asm volatile(
+        "li t0, 0x0FFFFFFF\n\t"
+        "and x30, x30, t0\n\t"
+
+        "li t3, (1 << 24)\n\t"
+        "and %0, x30, t3\n\t"
+        "li t3, (1 << 25)\n\t"
+        "and %1, x30, t3\n\t"
+        "li t3, (1 << 26)\n\t"
+        "and %2, x30, t3\n\t"
+        "li t3, (1 << 27)\n\t"
+        "and %3, x30, t3\n\t"
+
+        : "=r"(Motor1A), "=r"(Motor1B), "=r"(Motor2A), "=r"(Motor2B)
+        :
+        : "t0", "t3", "x30"
+    );
+    printf("Motor1A: %2x, Motor1B: %2x, Motor2A: %2x, Motor2B: %2x\n",
+           Motor1A, Motor1B, Motor2A, Motor2B);
+    delay(1400);
+}
+
+void delay(long iterations) {
+    for (long i = 0; i < iterations; i++) {
+        // empty loop for delay simulation
+    }
+}
+
+```
+- ### **Inline Assembly Code Compile and run:**
+
+```
+riscv64-unknown-elf-gcc -march=rv64i -mabi=lp64 -ffreestanding -o ./maze.o maze.c
+spike pk maze.o
+```
 
 
  
