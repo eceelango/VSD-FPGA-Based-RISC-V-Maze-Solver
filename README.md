@@ -1334,3 +1334,81 @@ I have run the python scripts in terminal to get the unique instruction (Referen
 + python3 script.py
 + Number of different instructions:**     **
 + List of unique instructions:
+```
+```
+```
+### Pesudo Instruction Equivalent Command
+```
+li, mv = ADDI 
+j, ret = JAL 
+beqz = beq  
+bnez = bne
+
+```
+### RISC V Custom Core Configuration (.json)
+```
+```
+### RISCV RTL Core and Testbench Generation
+Refer the GITHUB to installl the toolchain
+https://github.com/Chipcron-Pvt-Ltd/Chipcron-toolchain/tree/main
+
+![WhatsApp Image 2025-09-23 at 8 40 50 PM](https://github.com/user-attachments/assets/0bb303bb-e61f-494d-82c5-32f1ee21db09)
+
+
+## GPIO Configuration
+### Register architecture of x30 for GPIOs
+
++ Input Signals - Sensor1, Sensor2, Sensor3;
++ Output Signals -  Motor1A, Motor1B, Motor2A, Motor2B;
++ Number of Register bits Required - 28
++ Register bits allocations are given below
+
++ x30 [23:0] is Sensor -  Sensor 1 - x30[7:0]; Sensor 2 - x30[15:8]; Sensor 3 - x30[23:16];   // Input - Read
++ x30 [25:24] is e1 & e2 - e1 x30 [24] ; e2 x30 [25] ;  // Output Write  Motor1A = 2^24 =167777216  Motor1B = 2^25 = 33554432
++ x30 [27:26] is d1 & d2 - d1 x30 [26] ; d2 x30 [27] ;  // Output Write  Motor2A = 2^26 =67108864  Motor2B = 2^27 =134217728
+
+ #### GPIO Configuration in Verilog File
+```
+    module wrapper(clk,resetn,uart_rxd,uart_rx_en,uart_rx_break,uart_rx_valid,uart_rx_data, Motor1A,Motor1B,Motor2A,Motor2B, Sensors, write_done, instructions);
+    input wire [23:0] Sensors;
+    output reg Motor1A,Motor1B,Motor2A,Motor2B;
+
+
+    output_pins = {22'b0,top_gpio_pins[27:26],top_gpio_pins[25:24],Sensors} ; 
+    Motor1A= top_gpio_pins[24]; 
+    Motor1B= top_gpio_pins[25]; 
+    Motor2A= top_gpio_pins[26]; 
+    Motor2B= top_gpio_pins[27];
+```
+### Do the necessary changes in the Testbench file. 
+I have given 8 possible input sensor combination.    
+
+## iverilog Simulation
+
+```
+iverilog -o maze_v testbench.v processor.v
+vvp maze_v
+or
+./maze_v
+```
+![UART Verification and VCD File generation](https://github.com/eceelango/RISC-V_HDP/assets/65966247/a96bd709-9168-4845-bbce-5593b4c728ae)
+
+It will generate the VCD file (30.6 GB) in the folder. Click the file GTK wave window will open and drag and drop the signal you may see the output
+
+# UART Bypass
++ In Testbench file comment all the @(posedge slow_clk);write_instruction(32'h00000000). Because, the instruction is already written in the memory when we give ASIC "false" in .json file. It is generated for FPGA platform.
++ Make sure in Processor.v under wrapper module -  **writing_inst_done=1;**
++ If we bypass UART, it will generate the VCD file is with memory of 100 MB
+
+  ## Commands to do iverilog Simulation
+```
+iverilog -o maze1_v testbench1.v processor1.v
+vvp maze1_v
+or
+./maze1_v
+```
+![VCD_Uartbyepass](https://github.com/eceelango/RISC-V_HDP/assets/65966247/27d7249f-79ed-4399-9ee3-69ab2fa84f7e)
+
++ Click on generated VCD file GTKwave will open and select the DUT and corresponding Signals to view the output
+
+  ![GTKwave](https://github.com/eceelango/RISC-V_HDP/assets/65966247/3a3871f9-51a4-4e78-916c-096ea77a78ff)
