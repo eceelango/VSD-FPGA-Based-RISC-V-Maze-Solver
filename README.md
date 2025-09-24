@@ -1061,16 +1061,18 @@ void delay(long iterations) {
 
 ```
  ```
-riscv64-unknown-elf-gcc -Ofast -mabi=lp64 -march=rv64i -o maze.o maze.c
+riscv64-unknown-elf-gcc -Ofast -mabi=ilp32 -march=rv32i -o maze.o maze.c
 riscv64-unknown-elf-objdump -d maze.o | less
 ```
-<img width="751" height="852" alt="Screenshot from 2025-09-15 22-42-39" src="https://github.com/user-attachments/assets/b7ccf409-33dd-4c87-9880-e218c9ba0690" />
+
+<img width="935" height="892" alt="Screenshot from 2025-09-23 11-10-47" src="https://github.com/user-attachments/assets/ebf7e642-d87b-4777-a8ee-4388e7b74e8b" />
 
 ## Assembly.txt file generation
 ```
 riscv64-unknown-elf-gcc -march=rv32i -mabi=ilp32 -ffreestanding -nostdlib -o out maze.c
 riscv64-unknown-elf-objdump -d  -r out > maze1.txt
 ```
+
 ```
 
 out:     file format elf32-littleriscv
@@ -1324,7 +1326,6 @@ Disassembly of section .text:
    10404:	02c12403          	lw	s0,44(sp)
    10408:	03010113          	addi	sp,sp,48
    1040c:	00008067          	ret
-```
 
 ```
 # Creating Custom VSD FPGA based RISC-V Processor for Autonomous Navigation System
@@ -1332,10 +1333,30 @@ Disassembly of section .text:
 I have run the python scripts in terminal to get the unique instruction (Reference:https://github.com/BhattSoham/RISCV-HDP/blob/main/week3/script.py). Note the .txt should on the same the folder where youa re running the script
 + python script.py (if its not supported use the below command)
 + python3 script.py
-+ Number of different instructions:**     **
++ Number of different instructions:18
+
+  <img width="856" height="541" alt="Screenshot from 2025-09-23 11-15-44" src="https://github.com/user-attachments/assets/fe39df0a-e046-44b2-927c-f012187b96c0" />
+
 + List of unique instructions:
 ```
-```
+li
+xori
+srli
+lw
+or
+ret
+mv
+and
+slti
+jal
+j
+sw
+blt
+bne
+andi
+addi
+nop
+lui
 ```
 ### Pesudo Instruction Equivalent Command
 ```
@@ -1347,9 +1368,82 @@ bnez = bne
 ```
 ### RISC V Custom Core Configuration (.json)
 ```
+{
+    "ALU_dist": 3,
+    "pc_bit_width":8,
+    "value_bit_width":32,
+    "data_mem_bit_width":8,
+    "immediate":12,
+    "address_size":5,
+    "shamt":5,
+    "instructions":{
+        "LUI"   :true, 
+        "AUIPC" :false,
+        "JAL"   :true,  
+        "JALR"  :false,
+        "BEQ"   :false,
+        "BNE"   :true,
+        "BLT"   :true,
+        "BGE"   :false,
+        "BLTU"  :false,
+        "BGEU"  :false,
+        "LB"    :false,
+        "LH"    :false,
+        "LW"    :true,
+        "LBU"   :false,
+        "LHU"   :false,
+        "SB"    :false,
+        "SH"    :false,
+        "SW"    :true,
+        "ADDI"  :true,
+        "SLTI"  :true,
+        "SLTIU" :false,
+        "XORI"  :true,
+        "ORI"   :false,
+        "ANDI"  :true,
+        "SLLI"  :false,
+        "SRLI"  :true,
+        "SRAI"  :false,
+        "ADD"   :false,
+        "SUB"   :false,
+        "SLL"   :false,
+        "SLT"   :false,
+        "SLTU"  :false,
+        "XOR"   :false,
+        "SRL"   :false,
+        "SRA"   :false,
+        "OR"    :true,
+        "AND"   :true,
+        "MUL"   :false,
+        "MULH"  :false,
+        "MULHSU":false,
+        "MULHU" :false,
+        "DIV"   :false,
+        "DIVU"  :false,
+        "REM"   :false,
+        "REMU"  :false,
+        "R_type":false,
+        "I_type":false,
+        "S_type":false,
+        "B_type":false,
+        "U_type":false,
+        "J_type":false,
+        "M_type":false 
+    },
+    "pipelines" :{
+        "IF-ID" : true,
+        "ID-ALU": false,
+        "ALU-M1": false,
+        "M1-M2" : true,
+        "M2-WB" : true
+    },
+    "ASIC":false
+}
+
+
 ```
 ### RISCV RTL Core and Testbench Generation
-Refer the GITHUB to installl the toolchain
+Refer the GITHUB to install the toolchain
 https://github.com/Chipcron-Pvt-Ltd/Chipcron-toolchain/tree/main
 
 ![WhatsApp Image 2025-09-23 at 8 40 50 PM](https://github.com/user-attachments/assets/0bb303bb-e61f-494d-82c5-32f1ee21db09)
@@ -1374,7 +1468,7 @@ https://github.com/Chipcron-Pvt-Ltd/Chipcron-toolchain/tree/main
     output reg Motor1A,Motor1B,Motor2A,Motor2B;
 
 
-    output_pins = {22'b0,top_gpio_pins[27:26],top_gpio_pins[25:24],Sensors} ; 
+    output_pins = {4'b0,top_gpio_pins[27:26],top_gpio_pins[25:24],Sensors} ; 
     Motor1A= top_gpio_pins[24]; 
     Motor1B= top_gpio_pins[25]; 
     Motor2A= top_gpio_pins[26]; 
