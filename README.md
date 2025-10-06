@@ -1474,9 +1474,8 @@ https://github.com/Chipcron-Pvt-Ltd/Chipcron-toolchain/tree/main
     Motor2A= top_gpio_pins[26]; 
     Motor2B= top_gpio_pins[27];
 ```
-### Do the necessary changes in the Testbench file. 
-I have given 8 possible input sensor combination.    
-
+### Processor.v 
+### Testbench.v 
 ## iverilog Simulation
 
 ```
