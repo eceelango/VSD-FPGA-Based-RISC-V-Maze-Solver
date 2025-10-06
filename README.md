@@ -1449,6 +1449,122 @@ https://github.com/Chipcron-Pvt-Ltd/Chipcron-toolchain/tree/main
 ![WhatsApp Image 2025-09-23 at 8 40 50 PM](https://github.com/user-attachments/assets/0bb303bb-e61f-494d-82c5-32f1ee21db09)
 
 
+---
+
+##  Installing Docker to setting up the ChipCron tool, preparing configuration files, and running Verilog simulations.
+
+
+### Step 1: Install Docker on Ubuntu (VirtualBox)
+
+```bash
+sudo apt update
+sudo apt upgrade -y
+sudo apt remove docker docker-engine docker.io containerd runc
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+  https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+sudo apt update
+sudo apt install docker-ce docker-ce-cli containerd.io docker-compose-plugin -y
+sudo docker --version
+sudo docker run hello-world
+```
+
+✅ *Output should show “Hello from Docker!” if installation is successful.*
+
+---
+
+### Step 2: Install the ChipCron Tool
+
+There are **two ways** to install the ChipCron tool:
+
+#### Option 1 — Using GitHub Script
+
+```bash
+curl -s https://raw.githubusercontent.com/mayank2001/chipcron-tool/main/install-chipcron-tool.sh | bash
+```
+
+> **Note**: If the above script gives a “404” error, use Option 2 below.
+
+#### Option 2 — Using Docker (Recommended)
+
+```bash
+sudo docker pull mayank2001/chipcron-tool
+```
+
+---
+
+### Step 3: Set Up Input Files
+
+Create a directory for input data:
+
+```bash
+mkdir -p /home/$USER/Desktop/VSD_FPGA_MAZE/Data
+cd /home/$USER/Desktop/VSD_FPGA_MAZE/Data
+```
+
+Add the following files in this folder:
+
+| Filename    | Description                             |
+| ----------- | --------------------------------------- |
+| `maze1.txt` | Assembly instructions for testing       |
+| `maze.json` | Configuration and architecture settings |
+
+Check both files are present:
+
+```bash
+ls
+```
+
+You should see:
+
+```
+maze1.txt  maze.json
+```
+
+---
+
+### Step 4: Run ChipCron Tool
+
+Run the tool with **absolute paths** (do not use `~` or `./`):
+
+```bash
+sudo docker run --rm -v /home/vsduser/Desktop/VSD_FPGA_MAZE/Data:/data mayank2001/chipcron-tool \
+  --assembly /data/maze1.txt \
+  --conf /data/maze.json
+```
+
+✅ *If successful, you’ll see “Testbench created successfully!”*
+
+---
+
+### Step 5: Simulate the Generated Verilog Files
+
+Once the tool generates Verilog files (`processor.v`, `testbench.v`, etc.), simulate using **Icarus Verilog**:
+
+```bash
+iverilog -o maze_v testbench.v processor.v
+vvp maze_v
+```
+
+✅ *This compiles and executes the Verilog simulation.*
+
+---
+
+### Step 6: View Waveform in GTKWave
+
+If a `.vcd` file was generated:
+
+```bash
+gtkwave output.vcd
+```
+
+
 ## GPIO Configuration
 ### Register architecture of x30 for GPIOs
 
