@@ -1567,7 +1567,7 @@ sudo docker run --rm -v /home/vsduser/Desktop/VSD_FPGA_MAZE/Data:/data mayank200
 
 ✅ *If successful, you’ll see “Testbench created successfully!”*
 
-![WhatsApp Image 2025-09-23 at 8 40 50 PM](https://github.com/user-attachments/assets/0bb303bb-e61f-494d-82c5-32f1ee21db09)
+![output](https://github.com/eceelango/VSD-FPGA-Based-RISC-V-Maze-Solver/blob/79bd33f5db08d8b26335e1c5f108c06be5723077/Pictures/Screenshot%202025-10-07%20151450.png)
 
 ---
 
