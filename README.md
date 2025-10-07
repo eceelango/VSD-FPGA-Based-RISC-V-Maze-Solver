@@ -1631,7 +1631,7 @@ If a `.vcd` file was generated:
 gtkwave output.vcd
 ```
 
- ![GTKwave](https://github.com/eceelango/RISC-V_HDP/assets/65966247/3a3871f9-51a4-4e78-916c-096ea77a78ff)
+ ![GTKwave](https://github.com/eceelango/VSD-FPGA-Based-RISC-V-Maze-Solver/blob/32217257ca4b8cf542049837cfe901de1680cf77/Pictures/Screenshot%202025-10-07%20180858.png)
 
  
 ![UART Verification and VCD File generation](https://github.com/eceelango/RISC-V_HDP/assets/65966247/a96bd709-9168-4845-bbce-5593b4c728ae)
