@@ -1329,37 +1329,57 @@ Disassembly of section .text:
 
 ```
 # Creating Custom VSD FPGA based RISC-V Processor for Autonomous Navigation System
-## Unique Instruction
-I have run the python scripts in terminal to get the unique instruction (Reference:https://github.com/BhattSoham/RISCV-HDP/blob/main/week3/script.py). Note the .txt should on the same the folder where youa re running the script
-+ python script.py (if its not supported use the below command)
-+ python3 script.py
-+ Number of different instructions:18
 
-  <img width="856" height="541" alt="Screenshot from 2025-09-23 11-15-44" src="https://github.com/user-attachments/assets/fe39df0a-e046-44b2-927c-f012187b96c0" />
+### Unique Instruction Extraction 
 
-+ List of unique instructions:
+Before running the ChipCron tool, you can analyze your assembly file (`maze1.txt`) to find all **unique instructions** used.
+This helps verify which instructions must be enabled in the JSON configuration.
+
+I used a small Python script named `script.py` for this purpose.
+(Reference: [RISCV-HDP Week 3 Script](https://github.com/BhattSoham/RISCV-HDP/blob/main/week3/script.py))
+
+## script.py
+
 ```
-Number of different instructions: 18
-List of unique instructions:
-ret
-andi
-sw
-lw
-bne
-slti
-addi
-srli
-mv
-jal
-lui
-xori
-j
-blt
-and
-or
-li
-nop
+# Read the file content into maze1
+with open("maze1.txt", "r") as f:
+    maze1 = f.read()  # This loads the entire file as a string
+
+lines = maze1.split('\n')
+unique_instructions = set()
+for line in lines[5:]:
+    line = line.strip()
+    if line and not line.startswith('#'):
+        parts = line.split()
+        if len(parts) >= 3:
+            instruction = parts[2]
+            unique_instructions.add(instruction)
+
+print("Number of different instructions: {}".format(len(unique_instructions)))
+print("List of unique instructions:")
+for instruction in unique_instructions:
+    print(instruction)
+
 ```
+
+📁 **Make sure** your `script.py` and `maze1.txt` are in the **same folder**.
+Then, run the following command in the terminal:
+
+```bash
+python script.py
+```
+
+If your system doesn’t support `python`, use:
+
+```bash
+python3 script.py
+```
+
+✅ Output :
+
+![output](https://github.com/eceelango/VSD-FPGA-Based-RISC-V-Maze-Solver/blob/a12b8bc2b96c80c48a51eb920edeed33172f764e/Pictures/Screenshot%202025-10-07%20131325.png)
+
+
 ### Pesudo Instruction Equivalent Command
 ```
 li, mv = ADDI 
@@ -1368,6 +1388,11 @@ beqz = beq
 bnez = bne
 
 ```
+
+This helps identify which instruction types you’ll need to mark as `true` in your `maze.json` file.
+
+---
+
 ### RISC V Custom Core Configuration (.json)
 ```
 {
@@ -1449,9 +1474,6 @@ bnez = bne
 Refer the GITHUB to install the toolchain
 https://github.com/Chipcron-Pvt-Ltd/Chipcron-toolchain/tree/main
 
-![WhatsApp Image 2025-09-23 at 8 40 50 PM](https://github.com/user-attachments/assets/0bb303bb-e61f-494d-82c5-32f1ee21db09)
-
-
 ---
 
 ##  Installing Docker to setting up the ChipCron tool, preparing configuration files, and running Verilog simulations.
@@ -1479,6 +1501,7 @@ sudo docker run hello-world
 ```
 
 ✅ *Output should show “Hello from Docker!” if installation is successful.*
+
 
 ---
 
@@ -1544,29 +1567,9 @@ sudo docker run --rm -v /home/vsduser/Desktop/VSD_FPGA_MAZE/Data:/data mayank200
 
 ✅ *If successful, you’ll see “Testbench created successfully!”*
 
----
-
-### Step 5: Simulate the Generated Verilog Files
-
-Once the tool generates Verilog files (`processor.v`, `testbench.v`, etc.), simulate using **Icarus Verilog**:
-
-```bash
-iverilog -o maze_v testbench.v processor.v
-vvp maze_v
-```
-
-✅ *This compiles and executes the Verilog simulation.*
+![WhatsApp Image 2025-09-23 at 8 40 50 PM](https://github.com/user-attachments/assets/0bb303bb-e61f-494d-82c5-32f1ee21db09)
 
 ---
-
-### Step 6: View Waveform in GTKWave
-
-If a `.vcd` file was generated:
-
-```bash
-gtkwave output.vcd
-```
-
 
 ## GPIO Configuration
 ### Register architecture of x30 for GPIOs
@@ -1593,24 +1596,46 @@ gtkwave output.vcd
     Motor2A= top_gpio_pins[26]; 
     Motor2B= top_gpio_pins[27];
 ```
-### Processor.v 
-### Testbench.v 
-## iverilog Simulation
+## UART Bypass
++ In Testbench file comment all the @(posedge slow_clk);write_instruction(32'h00000000). Because, the instruction is already written in the memory when we give ASIC "false" in .json file. It is generated for FPGA platform.
++ Make sure in Processor.v under wrapper module -  **writing_inst_done=1;**
++ If we bypass UART, it will generate the VCD file is with memory of 100 MB
 
-```
+  ---
+  
+### Step 5: Simulate the Generated Verilog Files
+
+Once the tool generates Verilog files (`processor.v`, `testbench.v`, etc.), simulate using **Icarus Verilog**:
+
+```bash
 iverilog -o maze_v testbench.v processor.v
 vvp maze_v
 or
 ./maze_v
 ```
+
+✅ *This compiles and executes the Verilog simulation.*
+
+![VCD_Uartbyepass](https://github.com/eceelango/RISC-V_HDP/assets/65966247/27d7249f-79ed-4399-9ee3-69ab2fa84f7e)
+
+
+---
+
+### Step 6: View Waveform in GTKWave
+
+If a `.vcd` file was generated:
+
+```bash
+gtkwave output.vcd
+```
+
+ ![GTKwave](https://github.com/eceelango/RISC-V_HDP/assets/65966247/3a3871f9-51a4-4e78-916c-096ea77a78ff)
+
+ 
 ![UART Verification and VCD File generation](https://github.com/eceelango/RISC-V_HDP/assets/65966247/a96bd709-9168-4845-bbce-5593b4c728ae)
 
 It will generate the VCD file (30.6 GB) in the folder. Click the file GTK wave window will open and drag and drop the signal you may see the output
 
-# UART Bypass
-+ In Testbench file comment all the @(posedge slow_clk);write_instruction(32'h00000000). Because, the instruction is already written in the memory when we give ASIC "false" in .json file. It is generated for FPGA platform.
-+ Make sure in Processor.v under wrapper module -  **writing_inst_done=1;**
-+ If we bypass UART, it will generate the VCD file is with memory of 100 MB
 
   ## Commands to do iverilog Simulation
 ```
@@ -1619,8 +1644,7 @@ vvp maze1_v
 or
 ./maze1_v
 ```
-![VCD_Uartbyepass](https://github.com/eceelango/RISC-V_HDP/assets/65966247/27d7249f-79ed-4399-9ee3-69ab2fa84f7e)
 
 + Click on generated VCD file GTKwave will open and select the DUT and corresponding Signals to view the output
 
-  ![GTKwave](https://github.com/eceelango/RISC-V_HDP/assets/65966247/3a3871f9-51a4-4e78-916c-096ea77a78ff)
+ 
