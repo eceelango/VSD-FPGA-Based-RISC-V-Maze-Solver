@@ -1569,6 +1569,8 @@ sudo docker run --rm -v /home/vsduser/Desktop/VSD_FPGA_MAZE/Data:/data mayank200
 
 ![output](https://github.com/eceelango/VSD-FPGA-Based-RISC-V-Maze-Solver/blob/79bd33f5db08d8b26335e1c5f108c06be5723077/Pictures/Screenshot%202025-10-07%20151450.png)
 
+![generated files](https://github.com/eceelango/VSD-FPGA-Based-RISC-V-Maze-Solver/blob/0b37343c0ab5145a492ee1aaefc1c2ca2fc6c29a/Pictures/These%20are%20the%20generated%20files.png)
+
 ---
 
 ## GPIO Configuration
