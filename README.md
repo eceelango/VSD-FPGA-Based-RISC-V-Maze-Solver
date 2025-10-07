@@ -1339,24 +1339,26 @@ I have run the python scripts in terminal to get the unique instruction (Referen
 
 + List of unique instructions:
 ```
-li
-xori
-srli
-lw
-or
+Number of different instructions: 18
+List of unique instructions:
 ret
-mv
-and
-slti
-jal
-j
-sw
-blt
-bne
 andi
+sw
+lw
+bne
+slti
 addi
-nop
+srli
+mv
+jal
 lui
+xori
+j
+blt
+and
+or
+li
+nop
 ```
 ### Pesudo Instruction Equivalent Command
 ```
@@ -1422,12 +1424,12 @@ bnez = bne
         "DIVU"  :false,
         "REM"   :false,
         "REMU"  :false,
-        "R_type":false,
-        "I_type":false,
-        "S_type":false,
-        "B_type":false,
-        "U_type":false,
-        "J_type":false,
+        "R_type":true,
+        "I_type":true,
+        "S_type":true,
+        "B_type":true,
+        "U_type":true,
+        "J_type":true,
         "M_type":false 
     },
     "pipelines" :{
@@ -1439,6 +1441,7 @@ bnez = bne
     },
     "ASIC":false
 }
+
 
 
 ```
