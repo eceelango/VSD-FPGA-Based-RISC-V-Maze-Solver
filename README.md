@@ -1394,6 +1394,22 @@ sudo docker run --rm -v /home/vsduser/Desktop/VSD_FPGA_MAZE/Data:/data mayank200
 
 ---
 
+## 🔧 Modifications in Generated Files
+
+After generating `processor.v` and `testbench.v`, create two new files:
+
+* `processor1.v`
+* `testbench1.v`
+
+Copy:
+
+* The contents of `processor.v` into `processor1.v`
+* The contents of `testbench.v` into `testbench1.v`
+
+Then apply the following modification in **`processor1.v`**.
+
+---
+
 ## GPIO Configuration
 ### Register architecture of x30 for GPIOs
 
@@ -1424,14 +1440,180 @@ sudo docker run --rm -v /home/vsduser/Desktop/VSD_FPGA_MAZE/Data:/data mayank200
 + Make sure in Processor.v under wrapper module -  **writing_inst_done=1;**
 + If we bypass UART, it will generate the VCD file is with memory of 100 MB
 
-  ---
+---
+
+### 🔹 Modification in `processor1.v`
+
+### Replace this block:
+
+```verilog
+always @(posedge clk) 
+begin
+    output_pins = {24'b0, top_gpio_pins[7:4],  input_gpio_pins}; 
+    output_gpio_pins = top_gpio_pins[7:4]; 
+    write_done = writing_inst_done; 
+    instructions = write_inst_count[2:0]; 
+end
+```
+
+---
+
+### With the following block:
+
+```verilog
+always @(posedge clk) 
+begin
+    output_pins = {4'b0, top_gpio_pins[27:26], top_gpio_pins[25:24], Sensors}; 
+    Motor1A = top_gpio_pins[24]; 
+    Motor1B = top_gpio_pins[25]; 
+    Motor2A = top_gpio_pins[26]; 
+    Motor2B = top_gpio_pins[27]; 
+    write_done = writing_inst_done; 
+    instructions = write_inst_count[2:0]; 
+end
+```
+
+---
+
+This modification updates the GPIO mapping to match the custom `x30` register architecture for motor and sensor control.
+
+---
+
+### 🔹 Modification in `testbench1.v`
+
+
+### 🔹 1️⃣ Update Signal Declarations
+
+### Replace this:
+
+```verilog
+reg [3:0] input_wires; 
+wire [3:0] output_wires;
+```
+
+### With this:
+
+```verilog
+reg [0:23] Sensors; 
+wire Motor1A, Motor1B, Motor2A, Motor2B;
+```
+
+---
+
+### 🔹 2️⃣ Modify the Initial Block
+
+### Replace this:
+
+```verilog
+initial begin
+    rst=1;
+    rst_pin=1; 
+    neg_rst = 1; 
+    resetn  = 1'b0;
+    clk     = 1'b0;
+    neg_clk = 1; 
+    neg_rst = ~clk ;
+    uart_rxd = 1'b1;
+    neg_clk = 1'b1; 
+    input_wires = 4'b0111;
+    #4000
+    resetn = 1'b1;
+    rst=0;
+    neg_rst = 0; 
+    rst_pin = 0 ; 
+    uart_rx_en = 1'b1;
+```
+
+### With this:
+
+```verilog
+initial begin
+    // Initializing reset signals
+    rst = 1;
+    rst_pin = 1; 
+    neg_rst = 1; 
+    resetn  = 1'b0;
+    clk     = 1'b0;
+    neg_clk = 1'b1;
+    uart_rxd = 1'b1;
+
+    // Wait for some time
+    #5000 
+
+    // Release reset
+    resetn = 1'b1;
+    rst = 0;
+    neg_rst = 0; 
+    rst_pin = 0; 
+    Sensors = 24'hff0000;
+    #5000
+
+    uart_rx_en = 1'b1;
+```
+
+---
+
+### 🔹 3️⃣ Modify Wrapper Instantiation
+
+### Replace this:
+
+```verilog
+wrapper dut (
+.clk        (clk          ), 
+.resetn       (resetn       ), 
+.uart_rxd     (uart_rxd     ), 
+.uart_rx_en   (uart_rx_en   ), 
+.uart_rx_break(uart_rx_break), 
+.uart_rx_valid(uart_rx_valid), 
+.uart_rx_data (uart_rx_data ), 
+.input_gpio_pins(input_wires), 
+.output_gpio_pins(output_wires), 
+.write_done(write_done)
+);
+```
+
+### With this:
+
+```verilog
+wrapper dut (
+.clk        (clk          ), 
+.resetn       (resetn       ), 
+.uart_rxd     (uart_rxd     ), 
+.uart_rx_en   (uart_rx_en   ), 
+.uart_rx_break(uart_rx_break), 
+.uart_rx_valid(uart_rx_valid), 
+.uart_rx_data (uart_rx_data ), 
+.Motor1A(Motor1A),
+.Motor1B(Motor1B),
+.Motor2A(Motor2A),
+.Motor2B(Motor2B),
+.Sensors(Sensors), 
+.write_done(write_done)
+);
+```
+
+---
+
+### 🔹 4️⃣ Final Change – UART Bypass
+
+Comment all lines of the form:
+
+```verilog
+@(posedge slow_clk);
+write_instruction(32'hxxxxxxxx);
+```
+
+This ensures instructions are not rewritten through UART during simulation.
+
+---
+
   
 ### Step 5: Simulate the Generated Verilog Files
 
 Once the tool generates Verilog files (`processor.v`, `testbench.v`, etc.), simulate using **Icarus Verilog**:
 
 ```bash
-iverilog -o maze_v testbench.v processor.v
+iverilog -o maze_v testbench1.v processor1.v
 vvp maze_v
 or
 ./maze_v
