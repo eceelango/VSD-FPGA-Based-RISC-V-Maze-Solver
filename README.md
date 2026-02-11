@@ -392,227 +392,37 @@ void delay(long iterations) {
 | Right    | 1       | 0       | 0       | 1       |
 | Stop     | 0       | 0       | 0       | 0       |
 
-# **Assembly In line Code for Maze Controller**
+---
 
-## C Code with inline Assembly
+
+# 🔷 Inline Assembly Maze Controller
+
+### This section contains two versions:
+ 1) Simulation Version 
+ 2) Assembly_Version 
+
+## 📁 Folder Structure Recommendation
+
+Create two separate folders:
+```
+Inline_Assembly/
+│
+├── Simulation_Version/
+│   └── maze.c
+│
+└── Assembly_Version/
+    └── maze.c
 ```
 
-#include <stdio.h>
+## 1️⃣ Simulation Version
 
-// ---------------------- Sensor Module ----------------------
-// Sensor signals: 0 = low (blocked), 1 = high (clear)
-int Sensor1 = 0;  // Left Sensor
-int Sensor2 = 0;  // Front Sensor
-int Sensor3 = 0;  // Right Sensor
- int dist1, dist2, dist3;
+* Contains printf() and scanf()
+* Used to see output in console
+* Run using Spike
 
-#define THRESHOLD 10  // Threshold in cm
-
-// ---------------------- Motor Control ----------------------
-int Motor1A=0, Motor1B=0, Motor2A=0, Motor2B=0;
-
-void moveForward();
-void turnRight();
-void turnLeft();
-void goBack();
-void delay(long iterations);
-void readSensors(int *dist1, int *dist2, int *dist3);
-
-
-// ---------------------- Main Logic ----------------------
-int main() {
-    while(1) {
-  // Get distance readings from user input
-    printf("\nEnter distance for Sensor3 (Right): ");
-    scanf("%d", &dist3);
-    printf("Enter distance for Sensor2 (Front): ");
-    scanf("%d", &dist2);
-    printf("Enter distance for Sensor1 (Left): ");
-    scanf("%d", &dist1);
- 
-   // Distance > THRESHOLD means path is clear (1), else blocked (0)
-    Sensor3 = (dist3 > THRESHOLD) ? 1 : 0;
-    Sensor2 = (dist2 > THRESHOLD) ? 1 : 0;
-    Sensor1 = (dist1 > THRESHOLD) ? 1 : 0;
-
-    printf("\nProcessed Signals => Right: %d, Front: %d, Left: %d\n",
-           Sensor3, Sensor2, Sensor1);
-
-        if(Sensor3 == 1) {
-            // Right clear → turn right immediately
-            printf("Turning Right...\n");
-            turnRight();
-     
-        }
-        else {
-            // Right blocked, check front and left
-            if(Sensor2 == 1) {
-            printf("Moving Forward...\n");
-            moveForward();
- 
-            } 
-            else if(Sensor1 == 1) {
-           printf("Turning Left...\n");
-           turnLeft();
-            } 
-            else {
-           printf("Going Back...\n");
-                goBack();
-            }
-        }
-    }
-    return 0;
-}
-
-
-// Function to read sensor values using inline assembly
-void readSensors(int *dist1, int *dist2, int *dist3)
-{
-    int d1, d2, d3;
-    int clear_mask = 0x0FFFFFFF;
-
-    asm volatile(
-        "andi t0, x30, %3\n\t"        // clear unwanted bits into t0
-        "andi %0, t0, 0xFF\n\t"       // dist1 = t0[7:0]
-        "srli t1, t0, 8\n\t"          // shift >> 8
-        "andi %1, t1, 0xFF\n\t"       // dist2 = t0[15:8]
-        "srli t2, t0, 16\n\t"         // shift >> 16
-        "andi %2, t2, 0xFF\n\t"       // dist3 = t0[23:16]
-        : "=r"(d1), "=r"(d2), "=r"(d3)
-        : "r"(clear_mask)
-        : "t0", "t1", "t2"
-    );
-
-    *dist1 = d1;
-    *dist2 = d2;
-    *dist3 = d3;
-
-    printf("dist 1: %2x, dist 2: %2x, dist 3: %2x\n", *dist1, *dist2, *dist3);
-}
- 
-
-// ---------------------- Movement Functions ----------------------
-
-// Forward
-void moveForward() {
-// Debug print motor values
-     asm volatile(
-        "li t0, 0x0FFFFFFF\n\t"        // mask to clear bits [27:24]
-        "and x30, x30, t0\n\t"
-        "li t1, (1 << 24) | (1 << 26)\n\t"   // Motor1A + Motor2A
-        "or x30, x30, t1\n\t"
-
-        "andi %0, x30, (1 << 24)\n\t"
-        "andi %1, x30, (1 << 25)\n\t"
-        "andi %2, x30, (1 << 26)\n\t"
-        "andi %3, x30, (1 << 27)\n\t"
-
-        : "=r"(Motor1A), "=r"(Motor1B), "=r"(Motor2A), "=r"(Motor2B)
-        :
-        : "t0", "t1", "x30"
-    );
- printf("Motor1A: %2x, Motor1B: %2x, Motor2A: %2x, Motor2B: %2x\n", Motor1A, Motor1B, Motor2A, Motor2B);
-    delay(700);
-}
-
-// Backward
-void goBack() {
- // Debug print motor values
-       asm volatile(
-        "li t0, 0x0FFFFFFF\n\t"
-        "and x30, x30, t0\n\t"
-        "li t1, (1 << 25) | (1 << 27)\n\t"   // Motor1B + Motor2B
-        "or x30, x30, t1\n\t"
-
-        "andi %0, x30, (1 << 24)\n\t"
-        "andi %1, x30, (1 << 25)\n\t"
-        "andi %2, x30, (1 << 26)\n\t"
-        "andi %3, x30, (1 << 27)\n\t"
-
-        : "=r"(Motor1A), "=r"(Motor1B), "=r"(Motor2A), "=r"(Motor2B)
-        :
-        : "t0", "t1", "x30"
-    );
-    // Debug print motor values
-    printf("Motor1A: %2x, Motor1B: %2x, Motor2A: %2x, Motor2B: %2x\n", Motor1A, Motor1B, Motor2A, Motor2B);
-    delay(1400);
-}
-
-// Left
-void turnLeft() {
- 
-    asm volatile(
-        "li t0, 0x0FFFFFFF\n\t"
-        "and x30, x30, t0\n\t"
-        "li t1, (1 << 25) | (1 << 26)\n\t"   // Motor1B + Motor2A
-        "or x30, x30, t1\n\t"
-
-        "andi %0, x30, (1 << 24)\n\t"
-        "andi %1, x30, (1 << 25)\n\t"
-        "andi %2, x30, (1 << 26)\n\t"
-        "andi %3, x30, (1 << 27)\n\t"
-
-        : "=r"(Motor1A), "=r"(Motor1B), "=r"(Motor2A), "=r"(Motor2B)
-        :
-        : "t0", "t1", "x30"
-    );
-    // Debug print motor values
-    printf("Motor1A: %2x, Motor1B: %2x, Motor2A: %2x, Motor2B: %2x\n", Motor1A, Motor1B, Motor2A, Motor2B);
-    delay(700);
-}
-
-// Right
-void moveRight() {
-    asm volatile(
-        "li t0, 0x0FFFFFFF\n\t"
-        "and x30, x30, t0\n\t"
-        "li t1, (1 << 24) | (1 << 27)\n\t"   // Motor1A + Motor2B
-        "or x30, x30, t1\n\t"
-
-        "andi %0, x30, (1 << 24)\n\t"
-        "andi %1, x30, (1 << 25)\n\t"
-        "andi %2, x30, (1 << 26)\n\t"
-        "andi %3, x30, (1 << 27)\n\t"
-
-        : "=r"(Motor1A), "=r"(Motor1B), "=r"(Motor2A), "=r"(Motor2B)
-        :
-        : "t0", "t1", "x30"
-    );
-    // Debug print motor values
-    printf("Motor1A: %2x, Motor1B: %2x, Motor2A: %2x, Motor2B: %2x\n", Motor1A, Motor1B, Motor2A, Motor2B);
-    delay(1400);
-}
-
-// Stop
-void stopMovement() {
-    asm volatile(
-        "li t0, 0x0FFFFFFF\n\t"
-        "and x30, x30, t0\n\t"          // clear all motor bits
-
-        "andi %0, x30, (1 << 24)\n\t"
-        "andi %1, x30, (1 << 25)\n\t"
-        "andi %2, x30, (1 << 26)\n\t"
-        "andi %3, x30, (1 << 27)\n\t"
-
-        : "=r"(Motor1A), "=r"(Motor1B), "=r"(Motor2A), "=r"(Motor2B)
-        :
-        : "t0", "x30"
-    );
-    // Debug print motor values
-    printf("Motor1A: %2x, Motor1B: %2x, Motor2A: %2x, Motor2B: %2x\n", Motor1A, Motor1B, Motor2A, Motor2B);
-    delay(1400);
-}
-
-
-void delay(long iterations) {
-    for(long i = 0; i < iterations; i++) {
-        // empty loop for delay simulation
-    }
-}
-  
+## **Assembly In line Code for Maze Controller(For simulation only)**
 ```
-## C Code with inline Assembly Final Version
-```
+
 #include <stdio.h>
 
 // ---------------------- Sensor Module ----------------------
@@ -828,8 +638,9 @@ void delay(long iterations) {
         // empty loop for delay simulation
     }
 }
-
+  
 ```
+
 - ### **Inline Assembly Code Compile and run:**
 
 ```
@@ -838,10 +649,16 @@ spike pk maze.o
 ```
 <img width="629" height="385" alt="Inlineassembly simulation" src="https://github.com/user-attachments/assets/23c52270-e023-4303-a578-1ad4aff2b07e" />
 
-## Assembly Code generation
+--- 
+## 2️⃣ Assembly Version
+
+* printf() and scanf() are commented
+* No standard library
+  
 **
 Make Sure Comment all the lib, printf and Scanf functions. Code should starts with int main ()**
 
+## C Code with inline Assembly Final Version 
 ```
 //#include <stdio.h>
 
@@ -1060,7 +877,11 @@ void delay(long iterations) {
 }
 
 ```
- ```
+### Save the above code as " maze.c " in Assembly_Version folder and run the below given command . 
+
+## RISC-V Compilation and Assembly Analysis
+
+```
 riscv64-unknown-elf-gcc -Ofast -mabi=ilp32 -march=rv32i -o maze.o maze.c
 riscv64-unknown-elf-objdump -d maze.o | less
 ```
